@@ -2,8 +2,15 @@ import { Webhook } from 'svix';
 import { headers } from 'next/headers';
 import { WebhookEvent } from '@clerk/nextjs/server';
 import { auth as adminAuth, db as adminDb } from '@/lib/firebase_admin';
+import Stripe from 'stripe';
+
+// Initialize Stripe
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2024-06-20',
+});
 
 export async function POST(req: Request) {
+  console.log('Clerk webhook received');
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
@@ -51,7 +58,14 @@ export async function POST(req: Request) {
       if (!primaryEmail) {
         throw new Error('No primary email address found');
       }
-      
+      // Create Stripe customer
+      const stripeCustomer = await stripe.customers.create({
+        email: primaryEmail.email_address,
+        metadata: {
+          clerkUserId: id!
+        }
+      });
+      console.log("stripe cus created", stripeCustomer.id)
       // Check if the user already exists in Firebase
       try {
         const userRecord = await adminAuth.getUser(id!);
@@ -76,11 +90,12 @@ export async function POST(req: Request) {
         email: primaryEmail.email_address,
         createdAt: new Date(),
         lastLogin: new Date(),
+        stripeCustomerId: stripeCustomer.id,
       }, { merge: true });
       
-      console.log('User updated/created in Firestore:', id, 'with email:', primaryEmail.email_address);
+      console.log('User updated/created in Firestore and Stripe:', id, 'with email:', primaryEmail.email_address);
     } catch (error) {
-      console.error('Error handling user in Firebase or Firestore:', error);
+      console.error('Error handling user in Firebase, Firestore, or Stripe:', error);
       return new Response('Error handling user', { status: 500 });
     }
   }

@@ -10,8 +10,9 @@
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.5.0",
-    "@clerk/nextjs": "^5.3.7",
+    "@clerk/nextjs": "^5.4.1",
     "@reduxjs/toolkit": "^2.2.7",
+    "@stripe/stripe-js": "^4.4.0",
     "firebase": "^10.13.1",
     "firebase-admin": "^12.4.0",
     "js-cookie": "^3.0.5",
@@ -19,6 +20,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-redux": "^9.1.2",
+    "stripe": "^16.9.0",
     "svix": "^1.32.0",
     "swr": "^2.2.5"
   },

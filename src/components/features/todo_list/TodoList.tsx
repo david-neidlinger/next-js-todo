@@ -7,6 +7,7 @@ import { useAuth as useClerkAuth } from '@clerk/nextjs';
 import { signInWithCustomToken } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { collection, query, where, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { formatDate } from '@/utils/dateFormat';
 
 interface Todo {
   id: string;
@@ -28,6 +29,7 @@ export default function TodoList({ initialTodos, timestamp }: TodoListProps) {
   const [todos, setTodos] = useState<Todo[]>(initialTodos);
 
   useEffect(() => {
+    console.log('Here')
     const initializeFirebase = async () => {
       if (user) {
         try {
@@ -81,7 +83,7 @@ export default function TodoList({ initialTodos, timestamp }: TodoListProps) {
 
   return (
     <div className="max-w-md mx-auto">
-      <p className="mb-4 text-sm text-gray-600">Last fetched at: {new Date(timestamp).toLocaleString()}</p>
+      <p className="mb-4 text-sm text-gray-600">Last fetched at: {formatDate(timestamp).toLocaleString()}</p>
       <form onSubmit={handleAddTodo} className="mb-4">
         <div className="flex">
           <input
